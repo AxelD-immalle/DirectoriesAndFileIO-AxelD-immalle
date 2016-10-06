@@ -35,14 +35,7 @@ namespace DirectoriesAndFileIO
             Directory.CreateDirectory(subDir);
         }
 
-        [TestCleanup]
-        public void CleanUp()
-        {
-            if (Directory.Exists(testDir))
-            {
-                Directory.Delete(testDir, true);
-            }
-        }
+        
 
         [TestMethod]
         public void TestFileReadAllText()
@@ -58,6 +51,19 @@ namespace DirectoriesAndFileIO
 
             Assert.AreEqual(1, lines.Length);
             Assert.AreEqual(fileAContents, lines[0]);
+        }
+
+        [TestMethod]
+        public void TestFileOpenText()
+        {
+            
+            StreamReader str = File.OpenText(fileA);
+            string st = "";
+            string sr = "This is a.txt";
+            st = str.ReadLine();
+
+            Assert.AreEqual(sr, st);
+            str.Close();
         }
 
         [TestMethod]
@@ -92,6 +98,15 @@ namespace DirectoriesAndFileIO
             Assert.AreEqual(fileAContents, txt);
 
             stream.Close();
+        }
+
+        [TestCleanup]
+        public void CleanUp()
+        {
+            if (Directory.Exists(testDir))
+            {
+                Directory.Delete(testDir, true);
+            }
         }
 
     }
