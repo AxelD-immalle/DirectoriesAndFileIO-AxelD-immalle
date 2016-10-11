@@ -26,7 +26,7 @@ namespace DirectoriesAndFileIO
             subDir = Path.Combine(testDir, "subDir");
             subDirFile = Path.Combine(subDir, subDirFile);
             fileAContents = "This is a.txt.";
-            fileBContents = "This is b.txt.";
+            fileBContents = "This is b.txt.\n This is anotherone!";
             subDirFileContents = "This is a file in a sub-directory.";
 
             Directory.CreateDirectory(testDir);
@@ -35,35 +35,41 @@ namespace DirectoriesAndFileIO
             Directory.CreateDirectory(subDir);
         }
 
-        
+        [TestCleanup]
+        public void CleanUp()
+        {
+            if (Directory.Exists(testDir))
+            {
+                Directory.Delete(testDir, recursive: true);
+            }
+        }
 
         [TestMethod]
         public void TestFileReadAllText()
         {
-            string txt = File.ReadAllText(fileA);
-            Assert.AreEqual(fileAContents, txt);
+            string txt = File.ReadAllText(fileB);
+            Assert.AreEqual(fileBContents, txt);
         }
 
         [TestMethod]
         public void TestReadAllLines()
         {
-            string[] lines = File.ReadAllLines(fileA);
+            string[] lines = File.ReadAllLines(fileB);
 
-            Assert.AreEqual(1, lines.Length);
-            Assert.AreEqual(fileAContents, lines[0]);
+            Assert.AreEqual(2, lines.Length);
+            Assert.AreEqual(fileBContents, lines[0]+"\n"+lines[1]);
         }
 
         [TestMethod]
         public void TestFileOpenText()
         {
-            
-            StreamReader str = File.OpenText(fileA);
-            string st = "";
-            string sr = "This is a.txt";
-            st = str.ReadLine();
+            StreamReader stre = new StreamReader(fileA);
+            string sr = stre.ReadLine();
+        
+            Assert.AreEqual(fileAContents, sr);
 
-            Assert.AreEqual(sr, st);
-            str.Close();
+            stre.Close();
+
         }
 
         [TestMethod]
@@ -80,15 +86,15 @@ namespace DirectoriesAndFileIO
         [TestMethod]
         public void TestFileStream()
         {
-            byte[] data = new byte[20];
+            byte[] data = new byte[20]; // we choose 20 bytes because that's more than enough for what we choose as fileAContents, all bytes will be initialized to 0
 
             FileStream stream = File.OpenRead(fileA);
-            int r = stream.Read(data, 0, 20);
+            int r = stream.Read(data, 0, 20); // we read 20 bytes or less if the stream is finished
 
             string txt = "";
-            foreach(byte b in data)
+            foreach (byte b in data)
             {
-                if(b != 0)
+                if (b != 0) // the last bytes of the array will still be 0
                 {
                     txt += (char)b;
                 }
@@ -98,15 +104,6 @@ namespace DirectoriesAndFileIO
             Assert.AreEqual(fileAContents, txt);
 
             stream.Close();
-        }
-
-        [TestCleanup]
-        public void CleanUp()
-        {
-            if (Directory.Exists(testDir))
-            {
-                Directory.Delete(testDir, true);
-            }
         }
 
     }
